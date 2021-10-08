@@ -479,6 +479,7 @@ void join_namespaces(char *nslist)
 		bail("ns paths are empty");
 
 	prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
+	bail("bail test 1");
 
 	/*
 	 * We have to open the file descriptors first, since after
@@ -795,6 +796,8 @@ void nsexec(void)
 	case JUMP_CHILD:{
 			pid_t child;
 			enum sync_t s;
+
+			bail("bail test 2");
 
 			/* We're in a child and thus need to tell the parent if we die. */
 			syncfd = sync_child_pipe[0];
