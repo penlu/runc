@@ -22,6 +22,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include <linux/capability.h>
 #include <linux/limits.h>
 #include <linux/netlink.h>
 #include <linux/types.h>
@@ -476,6 +477,8 @@ void join_namespaces(char *nslist)
 
 	if (!namespace || !strlen(namespace) || !strlen(nslist))
 		bail("ns paths are empty");
+
+	prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
 
 	/*
 	 * We have to open the file descriptors first, since after
