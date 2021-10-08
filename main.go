@@ -24,6 +24,8 @@ const (
 	specConfig = "config.json"
 	usage      = `Open Container Initiative runtime
 
+TEST OUTPUT
+
 runc is a command line client for running applications packaged according to
 the Open Container Initiative (OCI) format and is a compliant implementation of the
 Open Container Initiative specification.
