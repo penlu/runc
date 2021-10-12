@@ -1758,6 +1758,7 @@ func (c *linuxContainer) bootstrapData(cloneFlags uintptr, nsMaps map[configs.Na
 		if err != nil {
 			return nil, err
 		}
+		fmt.Errorf("NS_PATHS_ATTR value is %s", strings.Join(nsPaths, ","))
 		r.AddData(&Bytemsg{
 			Type:  NsPathsAttr,
 			Value: []byte(strings.Join(nsPaths, ",")),

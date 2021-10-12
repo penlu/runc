@@ -478,8 +478,10 @@ void join_namespaces(char *nslist)
 	if (!namespace || !strlen(namespace) || !strlen(nslist))
 		bail("ns paths are empty");
 
+  // theoretically prevents joining namespaces later
 	prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
-	bail("bail test 1");
+	prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0);
+	//bail("bail test 1");
 
 	/*
 	 * We have to open the file descriptors first, since after
@@ -797,7 +799,7 @@ void nsexec(void)
 			pid_t child;
 			enum sync_t s;
 
-			bail("bail test 2");
+			//bail("bail test 2");
 
 			/* We're in a child and thus need to tell the parent if we die. */
 			syncfd = sync_child_pipe[0];
@@ -812,8 +814,14 @@ void nsexec(void)
 			 * [stage 2: JUMP_INIT]) would be meaningless). We could send it
 			 * using cmsg(3) but that's just annoying.
 			 */
-			if (config.namespaces)
+			if (config.namespaces) {
 				join_namespaces(config.namespaces);
+      } else {
+        int f = open("/tmp/nsexec_log.txt", O_WRONLY | O_APPEND | O_CREAT);
+        char s[] = "config.namespaces is null\n";
+        write(f, s, sizeof(s));
+        bail("bail test 3");
+      }
 
 			/*
 			 * Unshare all of the namespaces. Now, it should be noted that this
