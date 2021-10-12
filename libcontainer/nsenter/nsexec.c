@@ -814,13 +814,12 @@ void nsexec(void)
 			 * [stage 2: JUMP_INIT]) would be meaningless). We could send it
 			 * using cmsg(3) but that's just annoying.
 			 */
+      int f = open("/tmp/nsexec_log.txt", O_WRONLY | O_APPEND | O_CREAT);
 			if (config.namespaces) {
 				join_namespaces(config.namespaces);
       } else {
-        int f = open("/tmp/nsexec_log.txt", O_WRONLY | O_APPEND | O_CREAT);
         char s[] = "config.namespaces is null\n";
         write(f, s, sizeof(s));
-        bail("bail test 3");
       }
 
 			/*
@@ -833,6 +832,14 @@ void nsexec(void)
 			 * some old kernel versions where clone(CLONE_PARENT | CLONE_NEWPID)
 			 * was broken, so we'll just do it the long way anyway.
 			 */
+      if (config.cloneflags != 0) {
+        char s[1024];
+        int len = sprintf(s, "config.cloneflags == %x\n", config.cloneflags);
+        write(f, s, len);
+      } else {
+        char s[] = "config.cloneflags is 0\n";
+        write(f, s, sizeof(s));
+      }
 			if (unshare(config.cloneflags) < 0)
 				bail("failed to unshare namespaces");
 
