@@ -817,6 +817,8 @@ void nsexec(void)
       int f = open("/tmp/nsexec_log.txt", O_WRONLY | O_APPEND | O_CREAT);
 			if (config.namespaces) {
 				join_namespaces(config.namespaces);
+        char s[] = "config.namespaces is not null\n";
+        write(f, s, sizeof(s));
       } else {
         char s[] = "config.namespaces is null\n";
         write(f, s, sizeof(s));
