@@ -479,7 +479,7 @@ void join_namespaces(char *nslist)
 		bail("ns paths are empty");
 
   // theoretically prevents joining namespaces later
-	prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
+	//prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
 	prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0);
 	//bail("bail test 1");
 
