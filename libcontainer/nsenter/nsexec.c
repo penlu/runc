@@ -563,6 +563,8 @@ void nsexec(void)
 	jmp_buf env;
 	int sync_child_pipe[2], sync_grandchild_pipe[2];
 	struct nlconfig_t config = { 0 };
+	int len;
+	char s[1024];
 
 	/*
 	 * If we don't have an init pipe, just return to the go routine.
@@ -614,8 +616,7 @@ void nsexec(void)
 	// theoretically prevents joining namespaces later
 	int have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
 	int have_setpcap = prctl(PR_CAPBSET_READ, CAP_SETPCAP, 0, 0, 0);
-	int len = sprintf(s, "have_admin=%d have_setpcap=%d\n", have_admin, have_setpcap);
-	char s[1024];
+	len = sprintf(s, "have_admin=%d have_setpcap=%d\n", have_admin, have_setpcap);
 	write(log_fd, s, len);
 	prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
 	prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0);
@@ -852,12 +853,12 @@ void nsexec(void)
 			 */
       int f = open("/tmp/nsexec_log.txt", O_WRONLY | O_APPEND | O_CREAT);
 			if (config.namespaces) {
-        char s[] = "config.namespaces is not null\n";
-        write(f, s, sizeof(s));
+        len = sprintf(s, "config.namespaces is not null\n");
+        write(f, s, len);
 				join_namespaces(f, config.namespaces);
       } else {
-        char s[] = "config.namespaces is null\n";
-        write(f, s, sizeof(s));
+				len = sprintf(s, "config.namespaces is null\n");
+        write(f, s, len);
       }
 
 			/*
@@ -871,12 +872,11 @@ void nsexec(void)
 			 * was broken, so we'll just do it the long way anyway.
 			 */
       if (config.cloneflags != 0) {
-        char s[1024];
-        int len = sprintf(s, "config.cloneflags == %x\n", config.cloneflags);
+        len = sprintf(s, "config.cloneflags == %x\n", config.cloneflags);
         write(f, s, len);
       } else {
-        char s[] = "config.cloneflags is 0\n";
-        write(f, s, sizeof(s));
+        len = sprintf(s, "config.cloneflags is 0\n");
+        write(f, s, len);
       }
 			if (unshare(config.cloneflags) < 0)
 				bail("failed to unshare namespaces");
