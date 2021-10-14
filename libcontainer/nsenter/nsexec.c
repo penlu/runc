@@ -536,8 +536,18 @@ void join_namespaces(int log_fd, char *nslist)
 	for (i = 0; i < num; i++) {
 		struct namespace_t ns = namespaces[i];
 
-		if (setns(ns.fd, ns.ns) < 0)
+		have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
+		len = sprintf(s, "setns: have_admin=%d\n", have_admin);
+		write(log_fd, s, len);
+
+		if (setns(ns.fd, ns.ns) < 0) {
+			len = sprintf(s, "failed to setns to %s\n", ns.path);
+			write(log_fd, s, len);
 			bail("failed to setns to %s", ns.path);
+		} else {
+			len = sprintf(s, "successfully setns to %s\n", ns.path);
+			write(log_fd, s, len);
+		}
 
 		close(ns.fd);
 	}
