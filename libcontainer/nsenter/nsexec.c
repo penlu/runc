@@ -565,6 +565,7 @@ void nsexec(void)
 	struct nlconfig_t config = { 0 };
 	int len;
 	char s[1024];
+  int log_fd = open("/tmp/nsexec_log.txt", O_WRONLY | O_APPEND | O_CREAT);
 
 	/*
 	 * If we don't have an init pipe, just return to the go routine.
@@ -851,14 +852,13 @@ void nsexec(void)
 			 * [stage 2: JUMP_INIT]) would be meaningless). We could send it
 			 * using cmsg(3) but that's just annoying.
 			 */
-      int f = open("/tmp/nsexec_log.txt", O_WRONLY | O_APPEND | O_CREAT);
 			if (config.namespaces) {
         len = sprintf(s, "config.namespaces is not null\n");
-        write(f, s, len);
+        write(log_fd, s, len);
 				join_namespaces(f, config.namespaces);
       } else {
 				len = sprintf(s, "config.namespaces is null\n");
-        write(f, s, len);
+        write(log_fd, s, len);
       }
 
 			/*
@@ -873,10 +873,10 @@ void nsexec(void)
 			 */
       if (config.cloneflags != 0) {
         len = sprintf(s, "config.cloneflags == %x\n", config.cloneflags);
-        write(f, s, len);
+        write(log_fd, s, len);
       } else {
         len = sprintf(s, "config.cloneflags is 0\n");
-        write(f, s, len);
+        write(log_fd, s, len);
       }
 			if (unshare(config.cloneflags) < 0)
 				bail("failed to unshare namespaces");
