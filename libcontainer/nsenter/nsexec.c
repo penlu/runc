@@ -483,6 +483,8 @@ void join_namespaces(int log_fd, char *nslist)
 	// theoretically prevents joining namespaces later
 	int have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
 	int have_setpcap = prctl(PR_CAPBSET_READ, CAP_SETPCAP, 0, 0, 0);
+	len = sprintf(log_s, "join_namespaces uid is %d\n", geteuid());
+	write(log_fd, log_s, len);
 	/*
 	len = sprintf(log_s, "have_admin=%d have_setpcap=%d\n", have_admin, have_setpcap);
 	write(log_fd, log_s, len);
@@ -623,6 +625,8 @@ void nsexec(void)
 	prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0);
 	have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
 	len = sprintf(log_s, "after drop: have_admin=%d\n", have_admin);
+	write(log_fd, log_s, len);
+	len = sprintf(log_s, "parent uid is %d\n", geteuid());
 	write(log_fd, log_s, len);
 
 	/*
