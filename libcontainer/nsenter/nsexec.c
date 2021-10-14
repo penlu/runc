@@ -614,7 +614,8 @@ void nsexec(void)
 	// theoretically prevents joining namespaces later
 	int have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
 	int have_setpcap = prctl(PR_CAPBSET_READ, CAP_SETPCAP, 0, 0, 0);
-	len = sprintf(s, "have_admin=%d have_setpcap=%d\n", have_admin, have_setpcap);
+	int len = sprintf(s, "have_admin=%d have_setpcap=%d\n", have_admin, have_setpcap);
+	char s[1024];
 	write(log_fd, s, len);
 	prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
 	prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0);
