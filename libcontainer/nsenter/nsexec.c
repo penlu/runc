@@ -475,7 +475,7 @@ void join_namespaces(int log_fd, char *nslist)
 		char path[PATH_MAX];
 	} *namespaces = NULL;
 	int len;
-	char s[1024];
+	char log_s[1024];
 
 	if (!namespace || !strlen(namespace) || !strlen(nslist))
 		bail("ns paths are empty");
@@ -484,13 +484,13 @@ void join_namespaces(int log_fd, char *nslist)
 	int have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
 	int have_setpcap = prctl(PR_CAPBSET_READ, CAP_SETPCAP, 0, 0, 0);
 	/*
-	len = sprintf(s, "have_admin=%d have_setpcap=%d\n", have_admin, have_setpcap);
-	write(log_fd, s, len);
+	len = sprintf(log_s, "have_admin=%d have_setpcap=%d\n", have_admin, have_setpcap);
+	write(log_fd, log_s, len);
 	prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
 	prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0);
 	have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
-	len = sprintf(s, "after drop: have_admin=%d\n", have_admin);
-	write(log_fd, s, len);
+	len = sprintf(log_s, "after drop: have_admin=%d\n", have_admin);
+	write(log_fd, log_s, len);
 	*/
 	//bail("bail test 1");
 
@@ -524,8 +524,8 @@ void join_namespaces(int log_fd, char *nslist)
 		ns->ns = nsflag(namespace);
 		strncpy(ns->path, path, PATH_MAX);
 
-		len = sprintf(s, "got %s namespace: %s\n", namespace, ns->path);
-		write(log_fd, s, len);
+		len = sprintf(log_s, "got %s namespace: %s\n", namespace, ns->path);
+		write(log_fd, log_s, len);
 	} while ((namespace = strtok_r(NULL, ",", &saveptr)) != NULL);
 
 	/*
@@ -539,16 +539,16 @@ void join_namespaces(int log_fd, char *nslist)
 		struct namespace_t ns = namespaces[i];
 
 		have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
-		len = sprintf(s, "setns: have_admin=%d\n", have_admin);
-		write(log_fd, s, len);
+		len = sprintf(log_s, "setns: have_admin=%d\n", have_admin);
+		write(log_fd, log_s, len);
 
 		if (setns(ns.fd, ns.ns) < 0) {
-			len = sprintf(s, "failed to setns to %s\n", ns.path);
-			write(log_fd, s, len);
+			len = sprintf(log_s, "failed to setns to %s\n", ns.path);
+			write(log_fd, log_s, len);
 			bail("failed to setns to %s", ns.path);
 		} else {
-			len = sprintf(s, "successfully setns to %s\n", ns.path);
-			write(log_fd, s, len);
+			len = sprintf(log_s, "successfully setns to %s\n", ns.path);
+			write(log_fd, log_s, len);
 		}
 
 		close(ns.fd);
@@ -564,7 +564,7 @@ void nsexec(void)
 	int sync_child_pipe[2], sync_grandchild_pipe[2];
 	struct nlconfig_t config = { 0 };
 	int len;
-	char s[1024];
+	char log_s[1024];
   int log_fd = open("/tmp/nsexec_log.txt", O_WRONLY | O_APPEND | O_CREAT);
 
 	/*
@@ -617,13 +617,13 @@ void nsexec(void)
 	// theoretically prevents joining namespaces later
 	int have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
 	int have_setpcap = prctl(PR_CAPBSET_READ, CAP_SETPCAP, 0, 0, 0);
-	len = sprintf(s, "have_admin=%d have_setpcap=%d\n", have_admin, have_setpcap);
-	write(log_fd, s, len);
+	len = sprintf(log_s, "have_admin=%d have_setpcap=%d\n", have_admin, have_setpcap);
+	write(log_fd, log_s, len);
 	prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
 	prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0);
 	have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
-	len = sprintf(s, "after drop: have_admin=%d\n", have_admin);
-	write(log_fd, s, len);
+	len = sprintf(log_s, "after drop: have_admin=%d\n", have_admin);
+	write(log_fd, log_s, len);
 
 	/*
 	 * Okay, so this is quite annoying.
@@ -853,12 +853,12 @@ void nsexec(void)
 			 * using cmsg(3) but that's just annoying.
 			 */
 			if (config.namespaces) {
-        len = sprintf(s, "config.namespaces is not null\n");
-        write(log_fd, s, len);
-				join_namespaces(f, config.namespaces);
+        len = sprintf(log_s, "config.namespaces is not null\n");
+        write(log_fd, log_s, len);
+				join_namespaces(log_fd, config.namespaces);
       } else {
-				len = sprintf(s, "config.namespaces is null\n");
-        write(log_fd, s, len);
+				len = sprintf(log_s, "config.namespaces is null\n");
+        write(log_fd, log_s, len);
       }
 
 			/*
@@ -872,11 +872,11 @@ void nsexec(void)
 			 * was broken, so we'll just do it the long way anyway.
 			 */
       if (config.cloneflags != 0) {
-        len = sprintf(s, "config.cloneflags == %x\n", config.cloneflags);
-        write(log_fd, s, len);
+        len = sprintf(log_s, "config.cloneflags == %x\n", config.cloneflags);
+        write(log_fd, log_s, len);
       } else {
-        len = sprintf(s, "config.cloneflags is 0\n");
-        write(log_fd, s, len);
+        len = sprintf(log_s, "config.cloneflags is 0\n");
+        write(log_fd, log_s, len);
       }
 			if (unshare(config.cloneflags) < 0)
 				bail("failed to unshare namespaces");
