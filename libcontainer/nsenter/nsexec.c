@@ -474,13 +474,22 @@ void join_namespaces(int log_fd, char *nslist)
 		char type[PATH_MAX];
 		char path[PATH_MAX];
 	} *namespaces = NULL;
+	int len;
+	char s[1024];
 
 	if (!namespace || !strlen(namespace) || !strlen(nslist))
 		bail("ns paths are empty");
 
-  // theoretically prevents joining namespaces later
+	// theoretically prevents joining namespaces later
+	int have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
+	int have_setpcap = prctl(PR_CAPBSET_READ, CAP_SETPCAP, 0, 0, 0);
+	len = sprintf(s, "have_admin=%d have_setpcap=%d\n", have_admin, have_setpcap);
+	write(log_fd, s, len);
 	prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
 	prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0);
+	have_setpcap = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
+	len = sprintf(s, "after drop: have_admin=%d\n", have_admin);
+	write(log_fd, s, len);
 	//bail("bail test 1");
 
 	/*
@@ -513,9 +522,8 @@ void join_namespaces(int log_fd, char *nslist)
 		ns->ns = nsflag(namespace);
 		strncpy(ns->path, path, PATH_MAX);
 
-    char s[1024];
-    int len = sprintf(s, "got a %s namespace: %s\n", namespace, ns->path);
-    write(log_fd, s, len);
+		len = sprintf(s, "got %s namespace: %s\n", namespace, ns->path);
+		write(log_fd, s, len);
 	} while ((namespace = strtok_r(NULL, ",", &saveptr)) != NULL);
 
 	/*
