@@ -487,7 +487,7 @@ void join_namespaces(int log_fd, char *nslist)
 	write(log_fd, s, len);
 	prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
 	prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0);
-	have_setpcap = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
+	have_admin = prctl(PR_CAPBSET_READ, CAP_SYS_ADMIN, 0, 0, 0);
 	len = sprintf(s, "after drop: have_admin=%d\n", have_admin);
 	write(log_fd, s, len);
 	//bail("bail test 1");
