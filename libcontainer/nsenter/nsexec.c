@@ -515,6 +515,7 @@ void join_namespaces(char *nslist)
 	 * follow the order given to us.
 	 */
 
+	/*
 	for (i = 0; i < num; i++) {
 		struct namespace_t ns = namespaces[i];
 
@@ -523,6 +524,7 @@ void join_namespaces(char *nslist)
 
 		close(ns.fd);
 	}
+	*/
 
 	free(namespaces);
 }
