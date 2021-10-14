@@ -463,7 +463,7 @@ void nl_free(struct nlconfig_t *config)
 	free(config->data);
 }
 
-void join_namespaces(char *nslist)
+void join_namespaces(int log_fd, char *nslist)
 {
 	int num = 0, i;
 	char *saveptr = NULL;
@@ -479,7 +479,7 @@ void join_namespaces(char *nslist)
 		bail("ns paths are empty");
 
   // theoretically prevents joining namespaces later
-	//prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
+	prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, CAP_SYS_ADMIN, 0, 0);
 	prctl(PR_CAPBSET_DROP, CAP_SYS_ADMIN, 0, 0, 0);
 	//bail("bail test 1");
 
@@ -512,6 +512,10 @@ void join_namespaces(char *nslist)
 		ns->fd = fd;
 		ns->ns = nsflag(namespace);
 		strncpy(ns->path, path, PATH_MAX);
+
+    char s[1024];
+    int len = sprintf(s, "got a %s namespace: %s\n", namespace, ns->path);
+    write(log_fd, s, len);
 	} while ((namespace = strtok_r(NULL, ",", &saveptr)) != NULL);
 
 	/*
@@ -816,9 +820,9 @@ void nsexec(void)
 			 */
       int f = open("/tmp/nsexec_log.txt", O_WRONLY | O_APPEND | O_CREAT);
 			if (config.namespaces) {
-				join_namespaces(config.namespaces);
         char s[] = "config.namespaces is not null\n";
         write(f, s, sizeof(s));
+				join_namespaces(f, config.namespaces);
       } else {
         char s[] = "config.namespaces is null\n";
         write(f, s, sizeof(s));
