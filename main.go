@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/opencontainers/runc/libcontainer/seccomp"
 	"github.com/opencontainers/runtime-spec/specs-go"
@@ -53,6 +54,7 @@ value for "bundle" is the current directory.`
 )
 
 func main() {
+	time.Sleep(10 * time.Second)
 	app := cli.NewApp()
 	app.Name = "runc"
 	app.Usage = usage
