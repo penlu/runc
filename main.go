@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/opencontainers/runtime-spec/specs-go"
 
@@ -144,6 +145,7 @@ func main() {
 	// the error on cli.ErrWriter and exit.
 	// Use our own writer here to ensure the log gets sent to the right location.
 	cli.ErrWriter = &FatalWriter{cli.ErrWriter}
+	time.Sleep(time.Second * 5)
 	if err := app.Run(os.Args); err != nil {
 		fatal(err)
 	}
